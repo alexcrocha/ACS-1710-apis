@@ -22,6 +22,8 @@ pp = PrettyPrinter(indent=4)
 
 API_KEY = os.getenv("API_KEY")
 API_URL = "http://api.openweathermap.org/data/2.5/weather"
+ICON_URL1 = "http://openweathermap.org/img/wn/"
+ICON_URL2 = "@2x.png"
 
 
 ################################################################################
@@ -65,7 +67,7 @@ def results():
         result_json = requests.get(API_URL, params=params).json()
 
         # Uncomment the line below to see the results of the API call!
-        # pp.pprint(result_json)
+        pp.pprint(result_json)
 
         # Replace the empty variables below with their appropriate values.
         # You'll need to retrieve these from the result_json object above.
@@ -87,6 +89,7 @@ def results():
                 "%H:%M:%S"
             ),
             "units_letter": get_letter_for_units(units),
+            "icon": ICON_URL1 + result_json["weather"][0]["icon"] + ICON_URL2,
         }
 
         return render_template("results.html", **context)

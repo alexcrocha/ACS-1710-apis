@@ -1,28 +1,47 @@
 body {
-    background-color: #e6faff;
+    background-color: #8fc2f3;
     display: flex;
     justify-content: center;
     font-family: "Roboto", sans-serif;
+    font-size: 1em;
 }
 
 main {
     width: 800px;
+    display: flex;
+        flex-direction: column;
+        align-items: center;
 }
 
-main > section {
-    background-color: #fff;
-    border: 1px solid #007a99;
-    box-shadow: 5px 5px 5px #999;
+main>section {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid black;
+    border-radius: 20px;
+    box-shadow: 5px 5px 5px rgb(0, 0, 0);
     padding: 20px;
     margin-top: 20px;
     width: 100%;
 }
 
+section,
 fieldset {
     border: 1px solid #000;
+    border-radius: 20px;
 }
 
 h1 a {
     color: #000;
     text-decoration: none;
+}
+input {
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 5px;
+}
+ul {
+    list-style-type: none;
+}
+
+li {
+    margin: 10px;
 }
