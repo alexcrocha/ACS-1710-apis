@@ -61,34 +61,37 @@ def results():
         "units": units,
     }
 
-    result_json = requests.get(API_URL, params=params).json()
+    try:
+        result_json = requests.get(API_URL, params=params).json()
 
-    # Uncomment the line below to see the results of the API call!
-    pp.pprint(result_json)
+        # Uncomment the line below to see the results of the API call!
+        # pp.pprint(result_json)
 
-    # Replace the empty variables below with their appropriate values.
-    # You'll need to retrieve these from the result_json object above.
+        # Replace the empty variables below with their appropriate values.
+        # You'll need to retrieve these from the result_json object above.
 
-    # For the sunrise & sunset variables, I would recommend to turn them into
-    # datetime objects. You can do so using the `datetime.fromtimestamp()`
-    # function.
-    context = {
-        "date": datetime.now().strftime("%A, %B %d, %Y"),
-        "city": result_json["name"],
-        "description": result_json["weather"][0]["description"],
-        "temp": result_json["main"]["temp"],
-        "humidity": result_json["main"]["humidity"],
-        "wind_speed": result_json["wind"]["speed"],
-        "sunrise": datetime.fromtimestamp(result_json["sys"]["sunrise"]).strftime(
-            "%H:%M:%S"
-        ),
-        "sunset": datetime.fromtimestamp(result_json["sys"]["sunset"]).strftime(
-            "%H:%M:%S"
-        ),
-        "units_letter": get_letter_for_units(units),
-    }
+        # For the sunrise & sunset variables, I would recommend to turn them into
+        # datetime objects. You can do so using the `datetime.fromtimestamp()`
+        # function.
+        context = {
+            "date": datetime.now().strftime("%A, %B %d, %Y"),
+            "city": result_json["name"],
+            "description": result_json["weather"][0]["description"],
+            "temp": result_json["main"]["temp"],
+            "humidity": result_json["main"]["humidity"],
+            "wind_speed": result_json["wind"]["speed"],
+            "sunrise": datetime.fromtimestamp(result_json["sys"]["sunrise"]).strftime(
+                "%H:%M:%S"
+            ),
+            "sunset": datetime.fromtimestamp(result_json["sys"]["sunset"]).strftime(
+                "%H:%M:%S"
+            ),
+            "units_letter": get_letter_for_units(units),
+        }
 
-    return render_template("results.html", **context)
+        return render_template("results.html", **context)
+    except KeyError:
+        return render_template("error.html")
 
 
 @app.route("/comparison_results")
@@ -102,47 +105,50 @@ def comparison_results():
 
     # Make 2 API calls, one for each city. HINT: You may want to write a
     # helper function for this!
+    try:
 
-    def api_request(city, units, api_key):
-        params = {
-            "q": city,
-            "appid": api_key,
-            "units": units,
+        def api_request(city, units, api_key):
+            params = {
+                "q": city,
+                "appid": api_key,
+                "units": units,
+            }
+            result_json = requests.get(API_URL, params=params).json()
+            return result_json
+
+        result_json1 = api_request(city1, units, API_KEY)
+        result_json2 = api_request(city2, units, API_KEY)
+
+        # Pass the information for both cities in the context. Make sure to
+        # pass info for the temperature, humidity, wind speed, and sunset time!
+        # HINT: It may be useful to create 2 new dictionaries, `city1_info` and
+        # `city2_info`, to organize the data.
+        context = {
+            "date": datetime.now().strftime("%A, %B %d, %Y"),
+            "city1": {
+                "name": result_json1["name"],
+                "temperature": result_json1["main"]["temp"],
+                "humidity": result_json1["main"]["humidity"],
+                "wind_speed": result_json1["wind"]["speed"],
+                "sunset": int(
+                    datetime.fromtimestamp(result_json1["sys"]["sunset"]).strftime("%H")
+                ),
+            },
+            "city2": {
+                "name": result_json2["name"],
+                "temperature": result_json2["main"]["temp"],
+                "humidity": result_json2["main"]["humidity"],
+                "wind_speed": result_json2["wind"]["speed"],
+                "sunset": int(
+                    datetime.fromtimestamp(result_json2["sys"]["sunset"]).strftime("%H")
+                ),
+            },
+            "units": get_letter_for_units(units),
         }
-        result_json = requests.get(API_URL, params=params).json()
-        return result_json
 
-    result_json1 = api_request(city1, units, API_KEY)
-    result_json2 = api_request(city2, units, API_KEY)
-
-    # Pass the information for both cities in the context. Make sure to
-    # pass info for the temperature, humidity, wind speed, and sunset time!
-    # HINT: It may be useful to create 2 new dictionaries, `city1_info` and
-    # `city2_info`, to organize the data.
-    context = {
-        "date": datetime.now().strftime("%A, %B %d, %Y"),
-        "city1": {
-            "name": result_json1["name"],
-            "temperature": result_json1["main"]["temp"],
-            "humidity": result_json1["main"]["humidity"],
-            "wind_speed": result_json1["wind"]["speed"],
-            "sunset": int(datetime.fromtimestamp(result_json1["sys"]["sunset"]).strftime(
-                "%H")
-            ),
-        },
-        "city2": {
-            "name": result_json2["name"],
-            "temperature": result_json2["main"]["temp"],
-            "humidity": result_json2["main"]["humidity"],
-            "wind_speed": result_json2["wind"]["speed"],
-            "sunset": int(datetime.fromtimestamp(result_json2["sys"]["sunset"]).strftime(
-                "%H")
-            ),
-        },
-        "units": get_letter_for_units(units),
-    }
-
-    return render_template("comparison_results.html", **context)
+        return render_template("comparison_results.html", **context)
+    except KeyError:
+        return render_template("error.html")
 
 
 if __name__ == "__main__":
